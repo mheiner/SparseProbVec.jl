@@ -14,7 +14,7 @@ Computes `log(sum(exp(x)))` in a stable manner.
   log(sum(exp.(x)))
 ```
 """
-function logsumexp(x::Array{Float}, usemax::Bool=true)
+function logsumexp(x::Array{Float64}, usemax::Bool=true)
   if usemax
     m = maximum(x)
   else
@@ -35,7 +35,7 @@ Computes `log(sum(exp(x)))` in a stable manner along dimensions specified.
   logsumexp(x, 2)
 ```
 """
-function logsumexp(x::Array{Float}, region, usemax::Bool=true)
+function logsumexp(x::Array{Float64}, region, usemax::Bool=true)
   if usemax
     ms = maximum(x, dims=region)
   else
@@ -60,11 +60,11 @@ end
   rDirichlet(ones(5),true)
   ```
 """
-function rDirichlet(α::Array{Float, 1}, logscale::Bool=false)
+function rDirichlet(α::Array{Float64, 1}, logscale::Bool=false)
   @assert( all(α .> 0.0) )
 
   k = length(α)
-  xx = Vector{Float}(undef, k) # allows changes to elements
+  xx = Vector{Float64}(undef, k) # allows changes to elements
   s = 0.0
 
   if logscale
@@ -98,6 +98,6 @@ Computes the natural log of ``∏(Γ(x)) / Γ(sum(x))``.
   lmvbeta(x)
 ```
 """
-function lmvbeta(x::Array{Float})
+function lmvbeta(x::Array{Float64})
     sum(lgamma.(x)) - lgamma(sum(x))
 end

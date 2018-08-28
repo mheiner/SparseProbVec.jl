@@ -4,35 +4,35 @@ export SparseSBPrior, SparseSBPriorP, SparseSBPriorFull,
   rpost_sparseStickBreak, logSBMmarginal;
 
 struct SparseSBPrior
-  η::Float
-  p1::Float
-  μ::Float
-  M::Float
+  η::Float64
+  p1::Float64
+  μ::Float64
+  M::Float64
 end
 
 mutable struct SparseSBPriorP
-  η::Float
-  μ::Float
-  M::Float
-  a_p1::Float
-  b_p1::Float
-  p1_now::Float
+  η::Float64
+  μ::Float64
+  M::Float64
+  a_p1::Float64
+  b_p1::Float64
+  p1_now::Float64
 end
 
 mutable struct SparseSBPriorFull
-  η::Float
-  M::Float
-  a_p1::Float
-  b_p1::Float
-  a_μ::Float
-  b_μ::Float
-  p1_now::Float
-  μ_now::Float
+  η::Float64
+  M::Float64
+  a_p1::Float64
+  b_p1::Float64
+  a_μ::Float64
+  b_μ::Float64
+  p1_now::Float64
+  μ_now::Float64
 end
 
 
 ### Sparse Stick Breaking mixture
-function h_slice_mu(z2::Vector{Float}, n2::Int, M::Float, μ::Float,
+function h_slice_mu(z2::Vector{Float64}, n2::Int, M::Float64, μ::Float64,
   logscale::Bool=false)
 
   a = -n2*(lgamma(M*μ) + lgamma(M*(1.0 - μ)))
@@ -45,8 +45,8 @@ function h_slice_mu(z2::Vector{Float}, n2::Int, M::Float, μ::Float,
 end
 
 
-function slice_mu(z::Vector{Float}, ξ::Vector{Int}, μ_old::Float, M::Float,
-  a_μ::Float, b_μ::Float)
+function slice_mu(z::Vector{Float64}, ξ::Vector{Int}, μ_old::Float64, M::Float64,
+  a_μ::Float64, b_μ::Float64)
 
   # assumes xi=1 for group 1, xi=2 for group 2
 
@@ -83,8 +83,8 @@ end
 
 
 
-function rpost_sparseStickBreak(x::Vector{Int}, p1::Float, η::Float,
-  μ::Float, M::Float, logout::Bool=false)
+function rpost_sparseStickBreak(x::Vector{Int}, p1::Float64, η::Float64,
+  μ::Float64, M::Float64, logout::Bool=false)
 
   K = length(x)
   n = K - 1
@@ -109,7 +109,7 @@ function rpost_sparseStickBreak(x::Vector{Int}, p1::Float, η::Float,
   is1 = rand(n) .< post_p1
   ξ = -1*(is1 .* 1 .- 1) .+ 1
 
-  lz = Vector{Float}(undef, n)
+  lz = Vector{Float64}(undef, n)
   for i in 1:n
     if is1[i]
       lx1 = log( rand( Distributions.Gamma( a1[i] ) ) )
@@ -129,7 +129,7 @@ function rpost_sparseStickBreak(x::Vector{Int}, p1::Float, η::Float,
   end
 
   ## break the Stick
-  lw = Vector{Float}(undef, K)
+  lw = Vector{Float64}(undef, K)
   lwhatsleft = 0.0
 
   for i in 1:n
@@ -147,8 +147,8 @@ function rpost_sparseStickBreak(x::Vector{Int}, p1::Float, η::Float,
       (w, z, ξ)
   end
 end
-function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float, η::Float,
-  μ::Float, M::Float, a_p1::Float, b_p1::Float, logout::Bool=false)
+function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float64, η::Float64,
+  μ::Float64, M::Float64, a_p1::Float64, b_p1::Float64, logout::Bool=false)
 
   ## inference for p1 only
 
@@ -157,8 +157,8 @@ function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float, η::Float,
 
   (w, z, ξ, p1_now) # w and z may be log-valued depending on logout
 end
-function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float, η::Float,
-  μ_old::Float, M::Float, a_p1::Float, b_p1::Float, a_μ::Float, b_μ::Float, logout::Bool=false)
+function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float64, η::Float64,
+  μ_old::Float64, M::Float64, a_p1::Float64, b_p1::Float64, a_μ::Float64, b_μ::Float64, logout::Bool=false)
 
   ## inference for p1 and μ as well
 
@@ -182,8 +182,8 @@ end
   Calculate the log of the SBM prior predictive probability mass function.
 
 """
-function logSBMmarginal(x::Vector{Int}, p1::Float, η::Float,
-  μ::Float, M::Float)
+function logSBMmarginal(x::Vector{Int}, p1::Float64, η::Float64,
+  μ::Float64, M::Float64)
 
       K = length(x)
       n = K - 1

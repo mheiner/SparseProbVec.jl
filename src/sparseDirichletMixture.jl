@@ -4,8 +4,8 @@ export SparseDirMixPrior, logSDMweights,
     logSDMmarginal, rSparseDirMix;
 
 struct SparseDirMixPrior
-  α::Union{Float, Vector{Float}}
-  β::Float
+  α::Union{Float64, Vector{Float64}}
+  β::Float64
 end
 
 
@@ -22,7 +22,7 @@ end
     logSDMweights(α, β)
 ```
 """
-function logSDMweights(α::Vector{Float}, β::Float)
+function logSDMweights(α::Vector{Float64}, β::Float64)
   @assert(β > 1.0)
   K = length(α)
   X = reshape(repeat(α, inner=K), (K,K)) + Diagonal(β*ones(K))
@@ -40,7 +40,7 @@ end
   Calculate the log of the SDM prior predictive probability mass function.
 
 """
-function logSDMmarginal(x::Vector{Int}, α::Vector{Float}, β::Float)
+function logSDMmarginal(x::Vector{Int}, α::Vector{Float64}, β::Float64)
     lwSDM = logSDMweights(α, β)
 
     K = length(α)
@@ -62,7 +62,7 @@ end
   Draw from sparse Dirichlet mixture: p(Θ) ∝ Dir(α)⋅∑Θ^β
 
 """
-function rSparseDirMix(α::Vector{Float}, β::Float, logscale=false)
+function rSparseDirMix(α::Vector{Float64}, β::Float64, logscale=false)
   @assert(β > 1.0)
   K = length(α)
   X = reshape(repeat(α, inner=K), (K,K)) + Diagonal(β*ones(K))
