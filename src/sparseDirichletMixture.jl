@@ -1,31 +1,31 @@
-# sparseProbVec.jl
+# sparseDirichletMixture.jl
 
-export SparseDirMixPrior, logSDMweights,
-    logSDMmarginal, rSparseDirMix;
+export SparseDirMix, logSDMweights,
+    logMarginal, rSparseDirMix;
 
-struct SparseDirMixPrior
+struct SparseDirMix
   α::Union{Float64, Vector{Float64}}
   β::Float64
+  SparseDirMix(α, β) = all(α .> 0.0) && β > 1.0 ? new(α, β) :
+    error("Invalid parameter values.")
 end
 
 
-### Sparse Dirichlet Mixture
-
 """
-    logSDMweights(α, β)
+    logSDMweights(d::SparseDirMix)
 
   Calculate the log of mixture weights for the SDM prior.
 ### Example
 ```julia
     α = exp.(rand(5))
     β = 2.0
-    logSDMweights(α, β)
+    d = SparseDirMix(α, β)
+    logSDMweights(d)
 ```
 """
-function logSDMweights(α::Vector{Float64}, β::Float64)
-  @assert(β > 1.0)
-  K = length(α)
-  X = reshape(repeat(α, inner=K), (K,K)) + Diagonal(β*ones(K))
+function logSDMweights(d::SparseDirMix)
+  K = length(d.α)
+  X = reshape(repeat(d.α, inner=K), (K,K)) + Diagonal(d.β*ones(K))
   lgX = lgamma.(X)
   lpg = reshape(sum(lgX, dims=2), K)
   lpg_denom = logsumexp(lpg)
@@ -35,16 +35,16 @@ function logSDMweights(α::Vector{Float64}, β::Float64)
 end
 
 """
-    logSDMmarginal(x, α, β)
+    logSDMmarginal(x, d::SparseDirMix)
 
-  Calculate the log of the SDM prior predictive probability mass function.
+Calculate the log of the SDM-multinomial compound (marginal) probability mass function.
 
 """
-function logSDMmarginal(x::Vector{Int}, α::Vector{Float64}, β::Float64)
-    lwSDM = logSDMweights(α, β)
+function logMarginal(x::Vector{Int}, d::SparseDirMix)
+    lwSDM = logSDMweights(d)
 
-    K = length(α)
-    A = reshape(repeat(α, inner=K), (K,K)) + Diagonal(β*ones(K))
+    K = length(d.α)
+    A = reshape(repeat(d.α, inner=K), (K,K)) + Diagonal(d.β*ones(K))
     AX = A + reshape(repeat(x, inner=K), (K,K))
 
     lnum = [ lmvbeta(AX[k,:]) for k in 1:K ]
@@ -57,15 +57,14 @@ end
 
 
 """
-    rSparseDirMix(α, β[, logscale=FALSE])
+    rand(d::SparseDirMix[, logscale=FALSE])
 
   Draw from sparse Dirichlet mixture: p(Θ) ∝ Dir(α)⋅∑Θ^β
 
 """
-function rSparseDirMix(α::Vector{Float64}, β::Float64, logscale=false)
-  @assert(β > 1.0)
-  K = length(α)
-  X = reshape(repeat(α, inner=K), (K,K)) + Diagonal(β*ones(K))
+function Base.rand(d::SparseDirMix, logout::Bool=false)
+  K = length(d.α)
+  X = reshape(repeat(d.α, inner=K), (K,K)) + Diagonal(d.β*ones(K))
   lgX = lgamma.(X)
   lpg = reshape(sum(lgX, dims=2), K)
   lpg_denom = logsumexp(lpg)
@@ -73,5 +72,5 @@ function rSparseDirMix(α::Vector{Float64}, β::Float64, logscale=false)
   lw = lpg .- lpg_denom
   z = StatsBase.sample(Weights( exp.(lw) ))
 
-  rDirichlet(X[z,:], logscale)
+  rDirichlet(X[z,:], logout)
 end
