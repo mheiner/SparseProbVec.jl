@@ -35,16 +35,16 @@ function logSDMweights(d::SparseDirMix)
 end
 
 """
-    logSDMmarginal(x, d::SparseDirMix)
+    logMarginal(x, d::SparseDirMix)
 
 Calculate the log of the SDM-multinomial compound (marginal) probability mass function.
 
 """
-function logMarginal(x::Vector{Int}, d::SparseDirMix)
-    lwSDM = logSDMweights(d)
+function logMarginal(prior::SparseDirMix, x::Vector{Int})
+    lwSDM = logSDMweights(prior)
 
-    K = length(d.α)
-    A = reshape(repeat(d.α, inner=K), (K,K)) + Diagonal(d.β*ones(K))
+    K = length(prior.α)
+    A = reshape(repeat(prior.α, inner=K), (K,K)) + Diagonal(prior.β*ones(K))
     AX = A + reshape(repeat(x, inner=K), (K,K))
 
     lnum = [ lmvbeta(AX[k,:]) for k in 1:K ]

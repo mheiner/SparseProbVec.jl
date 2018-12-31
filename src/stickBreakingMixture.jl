@@ -68,12 +68,13 @@ end
 
 
 """
-    logMarginal(d::SBM_multinom_post)
+    logMarginal(d::SBM_multinom_post, x::Vector{Int})
 
 Calculate the log of the SBM-multinomial compound (marginal) probability mass function.
 
 """
-function logMarginal(d::SBM_multinom_post)
+function logMarginal(prior::SBMprior, x::Vector{Int})
+    d = SBM_multinom_post(prior, x)
     return sum( d.lmarg )
 end
 
