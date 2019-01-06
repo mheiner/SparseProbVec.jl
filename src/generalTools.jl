@@ -111,12 +111,14 @@ function rGenDirichlet(a::Vector{Float64}, b::Vector{Float64}, logout::Bool=fals
     all(b .> 0.0) || error("All elements of b must be positive.")
 
     lz = Vector{Float64}(undef, n)
+    loneminusz = Vector{Float64}(undef, n)
     for i = 1:n
         lx1 = log( rand( Distributions.Gamma( a[i] ) ) )
         lx2 = log( rand( Distributions.Gamma( b[i] ) ) )
         lxm = max(lx1, lx2)
         lxsum = lxm + log( exp(lx1 - lxm) + exp(lx2 - lxm) ) # logsumexp
         lz[i] = lx1 - lxsum
+        loneminusz[i] = lx2 - lxsum
     end
 
     ## break the Stick
@@ -125,7 +127,8 @@ function rGenDirichlet(a::Vector{Float64}, b::Vector{Float64}, logout::Bool=fals
 
     for i in 1:n
         lw[i] = lz[i] + lwhatsleft
-        lwhatsleft += log( 1.0 - exp(lw[i] - lwhatsleft) ) # logsumexp
+        # lwhatsleft += log( 1.0 - exp(lw[i] - lwhatsleft) ) # logsumexp (not numerically stable)
+        lwhatsleft += loneminusz[i]
     end
     lw[K] = copy(lwhatsleft)
 
