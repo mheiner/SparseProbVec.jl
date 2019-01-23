@@ -4,13 +4,13 @@ export SBMprior, SBM_multinom_post, logMarginal, rand, del_correctionSBM;
 struct SBMprior
     K::Int
     η::Float64
-    π_small::Float64
-    π_large::Float64
+    π_small::Union{Float64, Vector{Float64}}
+    π_large::Union{Float64, Vector{Float64}}
     γ::Union{Float64, Vector{Float64}}
     δ::Union{Float64, Vector{Float64}}
     SBMprior(K, η, π_small, π_large, γ, δ) =
         K > 0 && η > 1.0 &&
-        π_small >= 0.0 && π_large >= 0.0 && π_small + π_large <= 1.0 &&
+        all(π_small .>= 0.0) && all(π_large .>= 0.0) && all(π_small .+ π_large .<= 1.0) &&
         all(γ .> 0.0) && all(δ .> 0.0) &&
         ( (length(γ) == length(δ) == 1) || (length(γ) == length(δ) == (K-1)) ) ?
         new(K, η, π_small, π_large, γ, δ) : error("Invalid parameter values.")
@@ -49,12 +49,12 @@ function SBM_multinom_post(prior::SBMprior, x::Vector{Int})
     b_large = 1.0 .+ rcrx
 
     ## calculate weights
-    π_med = 1.0 - prior.π_small - prior.π_large
+    π_med = 1.0 .- prior.π_small .- prior.π_large
 
     ## calculate posterior mixture weights
-    lgwt1 = log(prior.π_small) .- lbeta.(1.0, prior.η) .+ lbeta.(a_small, b_small) # small
-    lgwt2 = log(π_med) .- lbeta.(prior.γ, prior.δ) .+ lbeta.(a_med, b_med) # medium
-    lgwt3 = log(prior.π_large) .- lbeta.(prior.η, 1.0) .+ lbeta.(a_large, b_large) # large
+    lgwt1 = log.(prior.π_small) .- lbeta.(1.0, prior.η) .+ lbeta.(a_small, b_small) # small
+    lgwt2 = log.(π_med) .- lbeta.(prior.γ, prior.δ) .+ lbeta.(a_med, b_med) # medium
+    lgwt3 = log.(prior.π_large) .- lbeta.(prior.η, 1.0) .+ lbeta.(a_large, b_large) # large
     lmarg = [ logsumexp( [lgwt1[i], lgwt2[i], lgwt3[i]] ) for i in 1:n ]
 
     lW = hcat( lgwt1 .- lmarg, lgwt2 .- lmarg, lgwt3 .- lmarg )
@@ -81,12 +81,24 @@ end
 
 function Base.rand(d::SBMprior, logout::Bool=false)
 
-    π_med = 1.0 - d.π_small - d.π_large
+    π_med = 1.0 .- d.π_small .- d.π_large
     n = d.K - 1
 
+    if length(d.π_small) == 1
+        π_small = fill(d.π_small, n)
+    else
+        π_small = deepcopy(d.π_small)
+    end
+
+    if length(d.π_large) == 1
+        π_large = fill(d.π_large, n)
+    else
+        π_large = deepcopy(d.π_large)
+    end
+
     ## draw ξ
-    w = [ copy(d.π_small), copy(π_med), copy(d.π_large) ]
-    ξ = [ StatsBase.sample( Weights( w ) ) for i = 1:n ]
+    w = hcat(π_small, π_med, π_large)
+    ξ = [ StatsBase.sample( Weights( w[i,:] ) ) for i = 1:n ]
 
     ## allocate generalized Dirichlet parameters
     a = Vector{Float64}(undef, n)
@@ -172,7 +184,7 @@ function del_correctionSBM(π_small::Float64, π_large::Float64, K::Int)
     K > 1 || error("K must be greater than 1.")
 
     if π_large == 0.0
-        out = float(K)/float(K-1) * π_small
+        out = ( (1.0 - π_small)*float(K-1) + 1.0 ) / float(K)
     else
         aa = 1.0 - π_large
         bb = 1.0 - aa^K
