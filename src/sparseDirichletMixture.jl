@@ -62,7 +62,7 @@ end
   Draw from sparse Dirichlet mixture: p(Θ) ∝ Dir(α)⋅∑Θ^β
 
 """
-function Base.rand(d::SparseDirMix, logout::Bool=false)
+function Base.rand(d::SparseDirMix; logout::Bool=false)
   K = length(d.α)
   X = reshape(repeat(d.α, inner=K), (K,K)) + Diagonal(d.β*ones(K))
   lgX = lgamma.(X)
@@ -72,5 +72,5 @@ function Base.rand(d::SparseDirMix, logout::Bool=false)
   lw = lpg .- lpg_denom
   z = StatsBase.sample(Weights( exp.(lw) ))
 
-  rDirichlet(X[z,:], logout)
+  rDirichlet(X[z,:], logout=logout)
 end

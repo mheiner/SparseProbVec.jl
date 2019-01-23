@@ -51,16 +51,16 @@ end
 
 
 """
-    rDirichlet(α[, logscale])
+    rDirichlet(α[; logout=false, logcompute=true])
 
-  Single draw from Dirichlet distribution, option for log scale.
+  Single draw from Dirichlet distribution, option for log scale, computation on log scale.
 
   ### Example
   ```julia
   rDirichlet(ones(5),true)
   ```
 """
-function rDirichlet(α::Array{Float64, 1}, logscale::Bool=false, logcompute::Bool=true)
+function rDirichlet(α::Array{Float64, 1}; logout::Bool=false, logcompute::Bool=true)
   all(α .> 0.0) || error("All shape parameters must be positive.")
 
   k = length(α)
@@ -73,7 +73,7 @@ function rDirichlet(α::Array{Float64, 1}, logscale::Bool=false, logcompute::Boo
     end
     s = logsumexp(xx)
     out = xx .- s
-    if !logscale
+    if !logout
         out = exp.(out)
     end
   else
@@ -82,7 +82,7 @@ function rDirichlet(α::Array{Float64, 1}, logscale::Bool=false, logcompute::Boo
       s += xx[i]
     end
     out = xx / s
-    if logscale
+    if logout
         out = log.(out)
     end
   end
@@ -103,7 +103,7 @@ end
   rGenDirichlet(a, b)
   ```
 """
-function rGenDirichlet(a::Vector{Float64}, b::Vector{Float64}, logout::Bool=false)
+function rGenDirichlet(a::Vector{Float64}, b::Vector{Float64}; logout::Bool=false)
     n = length(a)
     K = n + 1
     length(b) == n || error("Dimension mismatch between a and b.")

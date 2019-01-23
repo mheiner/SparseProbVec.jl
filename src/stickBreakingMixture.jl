@@ -79,7 +79,7 @@ function logMarginal(prior::SBMprior, x::Vector{Int})
 end
 
 
-function Base.rand(d::SBMprior, logout::Bool=false)
+function Base.rand(d::SBMprior; logout::Bool=false, zξout::Bool=false)
 
     π_med = 1.0 .- d.π_small .- d.π_large
     n = d.K - 1
@@ -132,12 +132,17 @@ function Base.rand(d::SBMprior, logout::Bool=false)
     end
 
     ## draw lw, lz
-    w, z = rGenDirichlet(a, b, logout)
+    w, z = rGenDirichlet(a, b, logout=logout)
 
-    return (w, z, ξ)
+    if zξout
+        return (w, z, ξ)
+    else
+        return w
+    end
+
 end
 
-function Base.rand(d::SBM_multinom_post, logout::Bool=false)
+function Base.rand(d::SBM_multinom_post; logout::Bool=false, zξout::Bool=false)
 
     n = d.prior.K - 1
 
@@ -164,9 +169,13 @@ function Base.rand(d::SBM_multinom_post, logout::Bool=false)
     end
 
     ## draw lw, lz
-    w, z = rGenDirichlet(a, b, logout)
+    w, z = rGenDirichlet(a, b, logout=logout)
 
-    return (w, z, ξ)
+    if zξout
+        return (w, z, ξ)
+    else
+        return w
+    end
 end
 
 """
