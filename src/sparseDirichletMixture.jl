@@ -1,7 +1,7 @@
 # sparseDirichletMixture.jl
 
 export SparseDirMix, logSDMweights,
-    logMarginal, rSparseDirMix;
+    logMarginal, rand;
 
 struct SparseDirMix
   α::Union{Float64, Vector{Float64}}
