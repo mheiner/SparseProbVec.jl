@@ -81,20 +81,21 @@ end
 
 function Base.rand(d::SBMprior; logout::Bool=false, zξout::Bool=false)
 
-    π_med = 1.0 .- d.π_small .- d.π_large
     n = d.K - 1
 
-    if length(d.π_small) == 1
+    if typeof(d.π_small) == Float64
         π_small = fill(d.π_small, n)
     else
         π_small = deepcopy(d.π_small)
     end
 
-    if length(d.π_large) == 1
+    if typeof(d.π_large) == Float64
         π_large = fill(d.π_large, n)
     else
         π_large = deepcopy(d.π_large)
     end
+
+    π_med = 1.0 .- π_small .- π_large
 
     ## draw ξ
     w = hcat(π_small, π_med, π_large)
@@ -104,13 +105,13 @@ function Base.rand(d::SBMprior; logout::Bool=false, zξout::Bool=false)
     a = Vector{Float64}(undef, n)
     b = Vector{Float64}(undef, n)
 
-    if length(d.γ) == 1
+    if typeof(d.γ) == Float64
         γ = fill(d.γ, n)
     else
         γ = deepcopy(d.γ)
     end
 
-    if length(d.δ) == 1
+    if typeof(d.δ) == Float64
         δ = fill(d.δ, n)
     else
         δ = deepcopy(d.δ)
