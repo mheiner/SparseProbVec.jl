@@ -52,9 +52,9 @@ function SBM_multinom_post(prior::SBMprior, x::Vector{Int})
     π_med = 1.0 .- prior.π_small .- prior.π_large
 
     ## calculate posterior mixture weights
-    lgwt1 = log.(prior.π_small) .- lbeta.(1.0, prior.η) .+ lbeta.(a_small, b_small) # small
-    lgwt2 = log.(π_med) .- lbeta.(prior.γ, prior.δ) .+ lbeta.(a_med, b_med) # medium
-    lgwt3 = log.(prior.π_large) .- lbeta.(prior.η, 1.0) .+ lbeta.(a_large, b_large) # large
+    lgwt1 = log.(prior.π_small) .- logbeta.(1.0, prior.η) .+ logbeta.(a_small, b_small) # small
+    lgwt2 = log.(π_med) .- logbeta.(prior.γ, prior.δ) .+ logbeta.(a_med, b_med) # medium
+    lgwt3 = log.(prior.π_large) .- logbeta.(prior.η, 1.0) .+ logbeta.(a_large, b_large) # large
     lmarg = [ logsumexp( [lgwt1[i], lgwt2[i], lgwt3[i]] ) for i in 1:n ]
 
     lW = hcat( lgwt1 .- lmarg, lgwt2 .- lmarg, lgwt3 .- lmarg )

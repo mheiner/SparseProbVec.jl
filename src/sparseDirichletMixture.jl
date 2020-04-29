@@ -26,7 +26,7 @@ end
 function logSDMweights(d::SparseDirMix)
   K = length(d.α)
   X = reshape(repeat(d.α, inner=K), (K,K)) + Diagonal(d.β*ones(K))
-  lgX = lgamma.(X)
+  lgX = loggamma.(X)
   lpg = reshape(sum(lgX, dims=2), K)
   lpg_denom = logsumexp(lpg)
 
@@ -65,7 +65,7 @@ end
 function Base.rand(d::SparseDirMix; logout::Bool=false)
   K = length(d.α)
   X = reshape(repeat(d.α, inner=K), (K,K)) + Diagonal(d.β*ones(K))
-  lgX = lgamma.(X)
+  lgX = loggamma.(X)
   lpg = reshape(sum(lgX, dims=2), K)
   lpg_denom = logsumexp(lpg)
 

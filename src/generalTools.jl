@@ -154,7 +154,7 @@ Computes the natural log of ``∏(Γ(x)) / Γ(sum(x))``.
 ```
 """
 function lmvbeta(x::Array{Float64})
-    return sum(lgamma.(x)) - lgamma(sum(x))
+    return sum(loggamma.(x)) - loggamma(sum(x))
 end
 
 

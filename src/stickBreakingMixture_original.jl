@@ -35,7 +35,7 @@
 # function h_slice_mu(z2::Vector{Float64}, n2::Int, M::Float64, μ::Float64,
 #   logscale::Bool=false)
 #
-#   a = -n2*(lgamma(M*μ) + lgamma(M*(1.0 - μ)))
+#   a = -n2*(loggamma(M*μ) + loggamma(M*(1.0 - μ)))
 #   b = M*μ*sum( log(z2) .- log(1.0 .- z2))
 #   out = a + b
 #   if (!logscale)
@@ -101,8 +101,8 @@
 #   b2 = δ .+ rcrx
 #
 #   ## calculate posterior mixture weights
-#   lgwt1 = log(p1) .- lbeta.(1.0, η) .+ lbeta.(a1, b1)
-#   lgwt2 = log(1.0 - p1) .- lbeta.(γ, δ) .+ lbeta.(a2, b2)
+#   lgwt1 = log(p1) .- logbeta.(1.0, η) .+ logbeta.(a1, b1)
+#   lgwt2 = log(1.0 - p1) .- logbeta.(γ, δ) .+ logbeta.(a2, b2)
 #   ldenom = [ logsumexp( [lgwt1[i], lgwt2[i]] ) for i in 1:n ]
 #
 #   post_p1 = exp.( lgwt1 .- ldenom )
@@ -200,8 +200,8 @@
 #       b2 = δ .+ rcrx
 #
 #       ## calculate posterior mixture weights
-#       lgwt1 = log(p1) .- lbeta.(1.0, η) .+ lbeta.(a1, b1)
-#       lgwt2 = log(1.0 - p1) .- lbeta.(γ, δ) .+ lbeta.(a2, b2)
+#       lgwt1 = log(p1) .- logbeta.(1.0, η) .+ logbeta.(a1, b1)
+#       lgwt2 = log(1.0 - p1) .- logbeta.(γ, δ) .+ logbeta.(a2, b2)
 #       lsum = [ logsumexp( [lgwt1[i], lgwt2[i]] ) for i in 1:n ]
 #
 #       sum( lsum )
